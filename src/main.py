@@ -115,7 +115,24 @@ class KsumSolution(object):
 
 
 if __name__ == '__main__':
-    numlist = [1, 3, 5, 7, 9, 11, 13, 15]
-    tar_val = 30
-    ksum = KsumSolution(tar_val, numlist)
-    ksum.get_match()
+    n = 1
+    while n == 1:
+        n = 0
+        input_str = input('输入数字列表,并且以英文状态下的逗号(,)分隔:\n')
+        numlist = [int(x) for x in input_str.split(",")]
+        input_str = input('输入目标值:\n')
+        tar_val = int(input_str)
+        ksum = KsumSolution(tar_val, numlist)
+
+        print("结果:")
+        ksum.get_match()
+
+        print('是否继续 Y/N:')
+        while 1:
+            input_str = input()
+            if input_str == "Y" or input_str == "y":
+                n = 1
+                break
+            elif input_str == "N" or input_str == "n":
+                break
+

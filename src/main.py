@@ -24,15 +24,13 @@ class KsumSolution(object):
         while i < j:
             twosum = two_list[i] + two_list[j]
             if twosum == two_tar:
-                record_list.clear()
-                record_list.append(two_list[i])
-                record_list.append(two_list[j])
+                record_list[0] = two_list[i];
+                record_list[1] = two_list[j];
                 break
             elif twosum < two_tar:
                 if dif_val > (two_tar - twosum):
-                    record_list.clear()
-                    record_list.append(two_list[i])
-                    record_list.append(two_list[j])
+                    record_list[0] = two_list[i];
+                    record_list[1] = two_list[j];
                 i += 1
             elif twosum > two_tar:
                 j -= 1

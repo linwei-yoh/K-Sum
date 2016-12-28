@@ -140,7 +140,6 @@ class KsumSolution(object):
 if __name__ == '__main__':
     n = 1
     while n == 1:
-        n = 0
         input_str = input('输入数字列表,并且以英文状态下的逗号(,)分隔:\n')
         numlist = [int(x) for x in input_str.split(",")]
         input_str = input('输入目标值:\n')
@@ -154,7 +153,7 @@ if __name__ == '__main__':
         while 1:
             input_str = input()
             if input_str == "Y" or input_str == "y":
-                n = 1
                 break
             elif input_str == "N" or input_str == "n":
+                n = 0
                 break

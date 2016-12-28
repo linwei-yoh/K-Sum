@@ -14,6 +14,22 @@ class KsumSolution(object):
         self.tar_list = sorted(tar_list)
         self.limit = limit
 
+    def one_solution(self, one_tar, one_list):
+        dif_val = one_tar - one_list[0]
+        record_list = [0]
+
+        for i in one_list:
+            if one_tar == i:
+                record_list[0] = i
+                break
+            elif i < one_tar:
+                if dif_val > (one_tar - i):
+                    dif_val = one_tar - i
+                record_list[0] = i
+            else:
+                break
+        return record_list
+
     # 2-sum算法
     def two_sum_solution(self, two_tar, two_list):
         i = 0
@@ -24,13 +40,15 @@ class KsumSolution(object):
         while i < j:
             twosum = two_list[i] + two_list[j]
             if twosum == two_tar:
-                record_list[0] = two_list[i];
-                record_list[1] = two_list[j];
+                record_list.clear()
+                record_list.append(two_list[i])
+                record_list.append(two_list[j])
                 break
             elif twosum < two_tar:
                 if dif_val > (two_tar - twosum):
-                    record_list[0] = two_list[i];
-                    record_list[1] = two_list[j];
+                    record_list.clear()
+                    record_list.append(two_list[i])
+                    record_list.append(two_list[j])
                 i += 1
             elif twosum > two_tar:
                 j -= 1
@@ -92,24 +110,31 @@ class KsumSolution(object):
     # 在简易判别之后 从2-SUM一直判别到K-sum,直到遇到第一个正好满足的组合
     # 或者遍历完成后取比目标值小的最接近值
     def get_match(self):
-        dif_val = self.tar_val - self.tar_list[0]
         record_list = [0]
-        if sum(self.tar_list) < self.tar_val:
+
+        if self.tar_val < self.tar_list[0]:
+            print("无有效组合")
+        elif sum(self.tar_list) < self.tar_val:
             print(self.tar_list)
         else:
-            for i in range(2,len(self.tar_list)):
-                sub_match = self.k_sum_solution(self.tar_val,self.tar_list,i)
-                sub_dif = self.tar_val - sum(sub_match)
-                if sum(sub_match) == self.tar_val:
-                    record_list.clear()
-                    record_list.extend(sub_match)
-                    break
-                elif dif_val > sub_dif:
-                    dif_val = sub_dif
-                    record_list.clear()
-                    record_list.extend(sub_match)
+            sub_match = self.one_solution(self.tar_val, self.tar_list)
+            dif_val = self.tar_val - sum(sub_match)
+            if dif_val == 0:
+                record_list.clear()
+                record_list.extend(sub_match)
+            else:
+                for i in range(2, len(self.tar_list)):
+                    sub_match = self.k_sum_solution(self.tar_val, self.tar_list, i)
+                    sub_dif = self.tar_val - sum(sub_match)
+                    if sum(sub_match) == self.tar_val:
+                        record_list.clear()
+                        record_list.extend(sub_match)
+                        break
+                    elif dif_val > sub_dif:
+                        dif_val = sub_dif
+                        record_list.clear()
+                        record_list.extend(sub_match)
             print(record_list)
-
 
 
 if __name__ == '__main__':
@@ -133,4 +158,3 @@ if __name__ == '__main__':
                 break
             elif input_str == "N" or input_str == "n":
                 break
-

@@ -1,0 +1,197 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define LIST_SIZE 6
+
+//数值型数据的从小到大比较排序算法
+int cmp(const void *a, const void *b)
+{
+	return *(int *)a - *(int *)b;
+}
+
+//获得数组前len个数据的和
+int getsum(int len, int* pList) {
+	int i = 0;
+	int numSumm = 0;
+
+	for (i = 0; i < len; i++)
+		numSumm += pList[i];
+	return numSumm;
+}
+
+//list_size 目标数组的长度
+//tar_list	目标数组的指针 默认目标数组已经排序过
+//tar_val	目标值
+//pStore	结果存储位置指针
+//返回结果和目标值的差值
+int two_sum_solution(int list_size, int* tar_list, int tar_val,int* pStore) {
+	int i = 0;
+	int j = list_size - 1;
+	int tmp[2] = { 0 };
+	int dif_val = tar_val - tar_list[0]; //比较用差值
+	int two_sum,tar_dif;
+
+	while (i < j) {
+		two_sum = tar_list[i] + tar_list[j];
+		
+		//两数之和等于目标值 直接记录退出
+		if (two_sum == tar_val) {
+			tmp[0] = tar_list[i];
+			tmp[1] = tar_list[j];
+			dif_val = 0;
+			break;
+		}
+		//两数之和小于目标值 且差值目前最小 则记录 
+		else if (two_sum < tar_val) {
+			tar_dif = tar_val - two_sum;
+			if (dif_val > tar_dif) {
+				dif_val = tar_dif;
+				tmp[0] = tar_list[i];
+				tmp[1] = tar_list[j];
+			}
+			i++;
+		}
+		//两数之和大于目标值 查询下一个组合
+		else
+			j--;
+	}
+
+	//得到2-sum的结果
+	pStore[0] = tmp[0];
+	pStore[1] = tmp[1];
+	return dif_val;
+}
+
+//list_size 目标数组的长度
+//tar_list	目标数组的指针 默认目标数组已经排序过
+//tar_val	目标值
+//pStore	结果存储位置指针
+//k_val		K-sum的K值大小
+//返回结果和目标值的差值
+int K_sum_solution(int list_size, int* tar_list, int tar_val, int* pStore,int k_val) {
+	int tmplist[6] = { 0 };
+	int i = 0,j = 0,tmp_sum,dif_val;
+	int sub_tar, sub_size;
+
+	//K=2时 结果数据存储在pStore[0] pStore[1]
+	//K>2时 第K个数据存储在pStore[K-1]
+	if (k_val == 2)
+		return two_sum_solution(list_size, tar_list, tar_val, pStore);
+	else if (k_val > 2) {
+		dif_val = tar_val - tar_list[0]; 
+		for (i = 0; i < (list_size - k_val + 1); i++) {
+			//获得（k_val - 1）层组合存储在pStore 中，
+			sub_tar = tar_val - tar_list[i];
+			sub_size = list_size - i - 1;
+			//只需给下层tar_val[i+1]开始的数列
+			K_sum_solution(sub_size, &tar_list[i + 1], sub_tar, tmplist, k_val - 1);
+
+			//获得此次组合的累加值
+			tmp_sum = getsum(k_val - 1, tmplist) + tar_list[i];
+
+			//获取最接近组合
+			if (tmp_sum == tar_val) {
+				for (j = 0; j < (k_val - 1); j++)
+					pStore[j] = tmplist[j];
+				pStore[k_val - 1] = tar_list[i];
+				dif_val = 0;
+				break;
+			}				
+			else if (dif_val > (tar_val - tmp_sum)) {
+				dif_val = tar_val - tmp_sum;
+				for (j = 0; j < (k_val - 1); j++)
+					pStore[j] = tmplist[j];
+				pStore[k_val - 1] = tar_list[i];
+			}			
+		}
+		return dif_val;
+	}
+}
+
+
+//检测是否存在单个数据等于目标值 
+//获得单个数据中最接近但不超过目标值的数据
+//返回结果和目标值的差值
+int one_sum_solution(int list_size, int* tar_list, int tar_val,int* result) {
+	int i = 0,dif_val = 0;
+	
+	dif_val = tar_val - tar_list[0];
+
+	for (i = 0; i < list_size; i++) {
+		// 存在单一值 == 目标值
+		if (tar_val == tar_list[i]) {
+			result[0] = tar_list[i];
+			dif_val = 0;
+			break;
+		}
+		else if (tar_val < tar_list[i])
+			break;
+		else if (dif_val > (tar_val - tar_list[i])) {
+			dif_val = tar_val - tar_list[i];
+			result[0] = tar_list[i];
+		}		
+	}
+	return dif_val;
+}
+
+//遍历1-sum 到K-sum找到最优解
+void ksum_process(int list_size,int* tar_list, int tar_val,int* result) {
+	int dif_val = 0,dif_tmp;
+	int *pList = NULL;
+	int i = 0;
+
+	//快速排序
+	qsort(tar_list, LIST_SIZE, sizeof(int), cmp);
+
+	pList = (int*)calloc(list_size, sizeof(int));
+
+	//目标值小于最小值
+	if (tar_val < tar_list[0]) {
+		memset(result, 0, sizeof(int)*list_size);
+		printf("无有效结果");
+	}
+					
+	//总和小于目标值
+	else if(getsum(list_size, tar_list) < tar_val)
+		memcpy(result, tar_list, sizeof(int)*list_size);
+	//K-sum  
+	else {
+		dif_val = one_sum_solution(list_size, tar_list, tar_val, pList);
+		if (dif_val == 0) 
+			memcpy(result, pList, sizeof(int)*list_size);
+		else
+			for (i = 2; i < list_size; i++) {
+				dif_tmp = K_sum_solution(list_size, tar_list, tar_val, pList, i);
+				if (dif_tmp == 0) {
+					memcpy(result, pList, sizeof(int)*list_size);
+					break;
+				}
+				else if (dif_val > dif_tmp) {
+					dif_val = dif_tmp;
+					memcpy(result, pList, sizeof(int)*list_size);
+				}
+			}
+	}		
+
+	free(pList);
+
+	qsort(result, LIST_SIZE, sizeof(int), cmp);
+}
+
+int  main() { 
+	int numlist[LIST_SIZE] = { 1,5,3,9,7,2 };	//筛选数字
+	int result[LIST_SIZE] = {0};
+	int tar_val = 23; // 目标数字
+	int i = 0;
+
+	ksum_process(LIST_SIZE, numlist, tar_val, result);
+
+	for (i = 0; i < LIST_SIZE; i++) {
+		if (result[i] == 0)
+			continue;
+		printf("%d ", result[i]);
+	}
+
+	return 0; 
+}

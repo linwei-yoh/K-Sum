@@ -150,6 +150,7 @@ if __name__ == '__main__':
         ksum.get_match()
 
         print('是否继续 Y/N:')
+
         while 1:
             input_str = input()
             if input_str == "Y" or input_str == "y":
